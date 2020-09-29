@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec2-4:State Pattern | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：State Pattern"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/09/28/State-Pattern/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec2-4:State Pattern"><meta property="og:url" content="https://tianzhe.me/2020/09/28/State-Pattern/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：State Pattern"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-09-29T01:48:46.000Z"><meta property="article:modified_time" content="2020-09-29T01:51:02.116Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-09-28 21:51:02'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">20</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Design-Patterns"><span class="toc-number">1.</span> <span class="toc-text">Design Patterns</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#State-Pattern-Example"><span class="toc-number">2.</span> <span class="toc-text">State Pattern - Example</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#State-Pattern-Design"><span class="toc-number">3.</span> <span class="toc-text">State Pattern - Design</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">4.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec2-4:State Pattern</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-09-29T01:48:46.000Z" title="发表于 2020-09-28 21:48:46">2020-09-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-09-29T01:51:02.116Z" title="更新于 2020-09-28 21:51:02">2020-09-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p><strong>State Pattern</strong>             </p>
+<h1 id="Design-Patterns"><a href="#Design-Patterns" class="headerlink" title="Design Patterns"></a>Design Patterns</h1><ul>
+<li><p>Approaches to common programming design problems</p>
+</li>
+<li><p>There are many design patterns</p>
+<ul>
+<li>We’ll only focus on the state pattern in this course</li>
+<li>For more patterns, search “The Gang of Four”</li>
+</ul>
+</li>
+<li><p>The Primary goal of design patterns is to simplify the Design and Maintainability of our programs</p>
+</li>
+<li><p>Applies Polymorphism</p>
+</li>
+<li><p>Every object contains state and behavior</p>
+</li>
+<li><p>We use state variables to change the state of an object and its behavior can depend on this state</p>
+</li>
+<li><p><strong>What if we want to significantly change the behavior of an object?</strong></p>
+<ul>
+<li>Use if statements?<ul>
+<li>if(condition){someBehavior()}</li>
+<li>else{completelyDifferentBehavior}</li>
+</ul>
+</li>
+<li>This will work, but what about maintainability?</li>
+</ul>
+</li>
+<li><p>What if we want mant different behaviors?</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(condition)&#123;</span><br><span class="line">    someBehavior()</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span>(otherCondition1)&#123;</span><br><span class="line">    otherBehavior1()</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span>(otherCondition2)&#123;</span><br><span class="line">    otherBehavior2()</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span>(otherCondition3)&#123;</span><br><span class="line">    otherBehavior3()</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    completelyDifferentBehavior()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>This would all be in a single method</p>
+<ul>
+<li>Hard to read</li>
+<li>Hard to maintain</li>
+<li>Need to re-test existing functionality each time a condition is added</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Let’s try using the <strong>state pattern</strong> as an alternative</li>
+<li>Instead of storing each behavior in the same class, we defer functionality to a state <strong>object</strong></li>
+<li>Have a state variable containing the current state as an <strong>object</strong></li>
+<li>Change the state as needed</li>
+<li>Decisions made on type(Polymorphism) not value (Conditions)</li>
+<li>Modularizes code<ul>
+<li>More, but smallerm pieces of functionality</li>
+</ul>
+</li>
+<li>Easy to add new features without breaking tested features</li>
+</ul>
+<ul>
+<li>State is represented by an <strong>abstract class</strong> (or trait, interface)<ul>
+<li>Defines the methods that can be called (API)</li>
+</ul>
+</li>
+<li>Extend the state class for each concrete state<ul>
+<li>One class for each possible state</li>
+</ul>
+</li>
+<li>Each state will have a reference to the object to which it is attached<ul>
+<li>Use this reference to access other state variables</li>
+<li>Use this reference to change state</li>
+</ul>
+</li>
+</ul>
+<h1 id="State-Pattern-Example"><a href="#State-Pattern-Example" class="headerlink" title="State Pattern - Example"></a>State Pattern - Example</h1><ul>
+<li><p>OK, but what does all that actually mean?</p>
+</li>
+<li><p>Let’s use the cool-headed Bruce Banner as an example</p>
+<ul>
+<li>Bruce is a world-class scientist</li>
+<li>Bruce can successfully drive a car</li>
+<li>Bruce is not very helpful in a fight<br><img src="image/drbanner.png" alt="Dr Banner">        </li>
+</ul>
+</li>
+<li><p>However, Make Bruce angry and he’ll become The Incredible Hulk!</p>
+<ul>
+<li>Smashes cars</li>
+<li>Great in a fight</li>
+<li>Out of control!<br><img src="image/hulk.png" alt="Hulk"></li>
+</ul>
+</li>
+<li><p>One man</p>
+</li>
+<li><p>Two significantly different behaviors depending on his current state</p>
+</li>
+<li><p>To simulate Bruce in a program, we will create one BruceBanner class containing the behavior in both states</p>
+</li>
+<li><p>Bruce Banner can use cars and fight very differently depending on his state</p>
+</li>
+<li><p>Defer to a State object to determine how he behaves</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BruceBanner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> state: <span class="type">State</span> = <span class="keyword">new</span> <span class="type">DrBanner</span>(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.makeAngry()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.calmDown()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.useCar(car)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.fight()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Ceate State as an abstract class to define all the methods each state must contain(API)</p>
+</li>
+<li><p>Extend State for each possible concrete state</p>
+</li>
+<li><p>Implement the method for each state</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">State</span>(<span class="params">banner: <span class="type">BruceBanner</span></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">yseCar</span></span>(car: <span class="type">Car</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BruceBanner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> state: <span class="type">State</span> = <span class="keyword">new</span> <span class="type">DrBanner</span>(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.makeAngry()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.calmDown()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.useCar(car)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.fight()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DrBanner</span>(<span class="params">banner: <span class="type">BruceBanner</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">banner</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        banner.state = <span class="keyword">new</span> <span class="type">TheHulk</span>(banner)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;already calm&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        car.drive(<span class="literal">false</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;this won&#x27;t end well&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TheHulk</span>(<span class="params">banner: <span class="type">BruceBnner</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">banner</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;already angry&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        banner.state = <span class="keyword">new</span> <span class="type">DrBanner</span>(banner)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        car.smash()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;Hulk Smash!&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="image/StatePatternEx1.png" alt="StatePattern"><br><img src="image/StatePatternEx2.png" alt="StatePattern"></p>
+</li>
+<li><p>With two states we could have easily used a single conditional and a boolean flag to store the state</p>
+<ul>
+<li>Arguably simpler than using the state pattern</li>
+</ul>
+</li>
+<li><p>The true power of this pattern comes when we have more states</p>
+</li>
+</ul>
+<ul>
+<li><p>Meet Professor Hulk</p>
+</li>
+<li><p>Bruce Banner transformed as the Hulk with full control</p>
+<ul>
+<li>Can drive a car <strong>and</strong> is great in a fight</li>
+</ul>
+</li>
+<li><p>To add the new state</p>
+<ul>
+<li>Create a new class and implement the State methods</li>
+<li>Add a state transition to enter the new state</li>
+</ul>
+</li>
+<li><p><strong>Did not modify any existing functionality!</strong></p>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BruceBanner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> state: <span class="type">State</span> = <span class="keyword">new</span> <span class="type">DrBanner</span>(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.makeAngry()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.calmDown()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.useCar(car)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.fight()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ProfessorHulk</span>(<span class="params">banner: <span class="type">BruceBanner</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">banner</span>) </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">makeAngry</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;I&#x27;m always angry&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">calmDown</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;OK&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">useCar</span></span>(car: <span class="type">Car</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        car.drive(<span class="literal">true</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">fight</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;Smash carefully&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="image/StatePatternEx3.png" alt="StatePattern"></p>
+<ul>
+<li><strong>State Diagrams</strong><ul>
+<li>Visualize <strong>states</strong> and <strong>state transitions</strong></li>
+<li>Very helpful while designing with the state pattern</li>
+</ul>
+</li>
+<li>The state diagram for Bruch Banner is as follows</li>
+</ul>
+<p><img src="image/SPDiagrams.png" alt="Diagrams"></p>
+<h1 id="State-Pattern-Design"><a href="#State-Pattern-Design" class="headerlink" title="State Pattern - Design"></a>State Pattern - Design</h1><ul>
+<li>Write your API<ul>
+<li>What methods will change behavior depending on the current state of the obeject</li>
+<li>Theses methods define your API and are declared in the State class</li>
+</ul>
+</li>
+<li>Decide what states should exist<ul>
+<li>Any situation where the behavior is different should be a new state</li>
+</ul>
+</li>
+<li>Determine the transitions between states</li>
+</ul>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>No Control Flow</strong> allowed for this lecture question! - Same rules as the Calculator/Microwave HW<br>We will simulate some character behavior in a platforming game where the player can run, duck, and stand still  </p>
+<ul>
+<li>In a package named <strong>oop.platformer</strong> write a class named <strong>Player</strong> with the following functionality</li>
+</ul>
+<p><strong>Methods:</strong></p>
+<ul>
+<li>duck(): Unit<ul>
+<li>Enters the ducking state. Cannot transition from running to ducking</li>
+</ul>
+</li>
+<li>standStill(): Unit<ul>
+<li>Enters the standing state</li>
+</ul>
+</li>
+<li>run(): Unit<ul>
+<li>Enters the running state. Cannot transition from ducking to running</li>
+</ul>
+</li>
+<li>jumpHeight(): Int<ul>
+<li>Returns 4 if ducking, 3 if standing, and 6 if running</li>
+</ul>
+</li>
+<li>movementSpeed(): Int<ul>
+<li>Returns 1 if ducking, 5 if standing, and 12 if running</li>
+</ul>
+</li>
+</ul>
+<p>The initial state of the Player is standing. The Player constructor takes no parameters</p>
+<p><strong>Test</strong>         </p>
+<ul>
+<li>In the tests package, write a test suite named <strong>TestPlayer</strong> that will test all this functionality.<ul>
+<li>Note: Only call the API methods while testing. Other methods/variables you create will not exist in the grader submissions</li>
+</ul>
+</li>
+</ul>
+<p><strong>You cannot have any control flow in the code you submit, including your tests. If you have all your lecture questions in a single project, make sure you only submit your code for this LQ</strong>           </p>
+<p>To complete this lecture question you are strongly encouraged to use the state pattern. It is possible to use different approaches, though using the state pattern will give you more practice for the HW              </p>
+<p><img src="image/lq24.png" alt="Lecture Question"></p>
+<p><strong>Note:</strong> You may have to start a new project for this question. Any control flow in your zip file will cause an error even if it’s in an unrelated package</p>
+<p><strong>Answer</strong>: Please don’t copy and share, thank you.<br>File: <strong>State.scala</strong>           </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> oop.platformer</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">State</span>(<span class="params">player: <span class="type">Player</span></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">duck</span></span>()</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">standStill</span></span>()</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>()</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">jumpHeight</span></span>(): <span class="type">Int</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">movementSpeed</span></span>(): <span class="type">Int</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>File: <strong>Player.scala</strong>            </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> oop.platformer</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Player</span></span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> state: <span class="type">State</span> = <span class="keyword">new</span> <span class="type">StandingMan</span>(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">duck</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">this</span>.state.duck()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">standStill</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">this</span>.state.standStill()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">this</span>.state.run()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">jumpHeight</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">this</span>.state.jumpHeight()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">movementSpeed</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">this</span>.state.movementSpeed()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>File: <strong>StandingMan.scala</strong>            </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> oop.platformer</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StandingMan</span>(<span class="params">player: <span class="type">Player</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">player</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">duck</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    player.state = <span class="keyword">new</span> <span class="type">DuckingMan</span>(player)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">standStill</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    player.state = <span class="keyword">new</span> <span class="type">RunningMan</span>(player)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">jumpHeight</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">3</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">movementSpeed</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">5</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>File: <strong>DuckingMan</strong>         </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> oop.platformer</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DuckingMan</span>(<span class="params">player: <span class="type">Player</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">player</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">duck</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">standStill</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    player.state = <span class="keyword">new</span> <span class="type">StandingMan</span>(player)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">jumpHeight</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">4</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">movementSpeed</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>File: <strong>RunningMan</strong>           </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> oop.platformer</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RunningMan</span>(<span class="params">player: <span class="type">Player</span></span>) <span class="keyword">extends</span> <span class="title">State</span>(<span class="params">player</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">duck</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">standStill</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    player.state = <span class="keyword">new</span> <span class="type">StandingMan</span>(player)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">jumpHeight</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">6</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">movementSpeed</span></span>(): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="number">12</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>File: <strong>TestPlayer.scala</strong>               </p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> tests</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> oop.platformer.<span class="type">Player</span></span><br><span class="line"><span class="keyword">import</span> org.scalatest.<span class="type">FunSuite</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestPlayer</span> <span class="keyword">extends</span> <span class="title">FunSuite</span></span>&#123;</span><br><span class="line"></span><br><span class="line">  test(<span class="string">&quot;Test player in different states&quot;</span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Default Stand</span></span><br><span class="line">    <span class="keyword">val</span> player: <span class="type">Player</span> = <span class="keyword">new</span> <span class="type">Player</span></span><br><span class="line">    assert(player.jumpHeight() == <span class="number">3</span> &amp;&amp; player.movementSpeed() == <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Stand to Duck</span></span><br><span class="line">    player.duck()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">4</span> &amp;&amp; player.movementSpeed() == <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Duck to Run (Should nothing happen</span></span><br><span class="line">    player.run()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">4</span> &amp;&amp; player.movementSpeed() == <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Duck back to Stand</span></span><br><span class="line">    player.standStill()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">3</span> &amp;&amp; player.movementSpeed() == <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Stand to Run</span></span><br><span class="line">    player.run()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">6</span> &amp;&amp; player.movementSpeed() == <span class="number">12</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Run to Duck (Should nothing happen)</span></span><br><span class="line">    player.duck()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">6</span> &amp;&amp; player.movementSpeed() == <span class="number">12</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Run back to Stand</span></span><br><span class="line">    player.standStill()</span><br><span class="line">    assert(player.jumpHeight() == <span class="number">3</span> &amp;&amp; player.movementSpeed() == <span class="number">5</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/09/28/State-Pattern/">https://tianzhe.me/2020/09/28/State-Pattern/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/09/28/JSON/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>
