@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec3-5:Immutability | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：Immutability"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/12/27/LO3-5-Immutability/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec3-5:Immutability"><meta property="og:url" content="https://tianzhe.me/2020/12/27/LO3-5-Immutability/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：Immutability"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-12-27T17:48:37.000Z"><meta property="article:modified_time" content="2020-12-27T18:34:38.432Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-12-27 13:34:38'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">40</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Immutable-Objects"><span class="toc-number">1.</span> <span class="toc-text">Immutable Objects</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Strings-are-Immutable"><span class="toc-number">1.1.</span> <span class="toc-text">Strings are Immutable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#List-are-Immutable"><span class="toc-number">1.2.</span> <span class="toc-text">List are Immutable</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">2.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec3-5:Immutability</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-27T17:48:37.000Z" title="发表于 2020-12-27 12:48:37">2020-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-27T18:34:38.432Z" title="更新于 2020-12-27 13:34:38">2020-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>Immutability</p>
+<h1 id="Immutable-Objects"><a href="#Immutable-Objects" class="headerlink" title="Immutable Objects"></a>Immutable Objects</h1><ul>
+<li>Values stored in state variables cannot change</li>
+<li>Immutable objects are stored on the heap just like any other object<ul>
+<li>But we don’t worry about the state changing when we pass the reference to a method / function</li>
+</ul>
+</li>
+<li>What if an immutable object needs to change state?<ul>
+<li>Create a copy of the object with the change applied</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>This ImmutableCounter class takes an initial value in its constructor and has methods to increment and decrement this value</li>
+<li>The internal Int is a value and cannot change<ul>
+<li>It also can’t be accessed (Artificial restriction to show more recursion)</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImmutableCounter</span>(<span class="params">counter: <span class="type">Int</span></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">printCount</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="keyword">this</span>.counter)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">increase</span></span>(): <span class="type">ImmutableCounter</span> = &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="type">ImmutableCounter</span>(<span class="keyword">this</span>.counter + <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decrease</span></span>(): <span class="type">ImmutableCounter</span> = &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="type">ImmutableCounter</span>(<span class="keyword">this</span>.counter - <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">updateCounter</span></span>(n: <span class="type">Int</span>, counter: <span class="type">ImmutableCounter</span>): <span class="type">ImmutableCounter</span> = &#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>)&#123;</span><br><span class="line">        counter</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        updateCounter(n + <span class="number">1</span>, counter.decrease())</span><br><span class="line">    &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">        updateCounter(n - <span class="number">1</span>, counter.increase())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> counter: <span class="type">ImmutableCounter</span> = <span class="keyword">new</span> <span class="type">ImmutableCounter</span>(<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">val</span> counter2: <span class="type">ImmutableCounter</span> = updateCounter(<span class="number">20</span>, counter)</span><br><span class="line"></span><br><span class="line">    counter.printCount()</span><br><span class="line">    counter2.printCount()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Since the Int cannot change<ul>
+<li>We simulate changes by creating a new object on the heap with the change applied</li>
+</ul>
+</li>
+<li>Create and return a new ImmutableCounter whenever a “change” is made</li>
+</ul>
+<br>
+
+<ul>
+<li>Since we return a new ImmutableCounter<ul>
+<li>We must use this return value or we will not see the change</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>What if we want to increment this object 10 times?</li>
+<li>Since we [artificially] restrict access to the Int we can only increment and decrement</li>
+<li>We could use a loop and reassign a variable at each iteration (requires var)</li>
+</ul>
+<br>
+
+<ul>
+<li>What if we want to increment this object 10 times?</li>
+<li>Use a recursive approach<ul>
+<li>Base case if n == 0</li>
+<li>Recursively increment / decrement and make a recursive call with n closer to 0</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="Strings-are-Immutable"><a href="#Strings-are-Immutable" class="headerlink" title="Strings are Immutable"></a><strong>Strings are Immutable</strong></h2><br>
+
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nerf</span></span>(input: <span class="type">String</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">    input.trplace(<span class="string">&quot;6&quot;</span>, <span class="string">&quot;5&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">amplify</span></span>(input: <span class="type">String</span>): <span class="type">String</span> = &#123;</span><br><span class="line">    input.replace(<span class="string">&quot;116&quot;</span>, <span class="string">&quot;250&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> course: <span class="type">String</span> = <span class="string">&quot;CSE116&quot;</span></span><br><span class="line">    nerf(course)</span><br><span class="line">    <span class="keyword">val</span> dataStructures: <span class="type">String</span> = <span class="string">&quot;CSE116&quot;</span></span><br><span class="line"></span><br><span class="line">    course + <span class="string">&quot; is great&quot;</span></span><br><span class="line">    <span class="keyword">val</span> courseString = course + <span class="string">&quot; is fun&quot;</span></span><br><span class="line"></span><br><span class="line">    println(course)</span><br><span class="line">    println(dataStructures)</span><br><span class="line">    println(courseString)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>The main method creates a new String on the stack and passes a reference to it to the nerf method</li>
+<li>We would usually expect to see changes made to this object by the method</li>
+</ul>
+<br>
+
+<ul>
+<li>The method “replaces” all instance of the substring “6” with “5”</li>
+<li>The “change” is made by creating a new String</li>
+<li>Since this method has a return type of Unit, the reference is not returned</li>
+<li>The String is still on the heap</li>
+</ul>
+<br>
+
+<ul>
+<li>After the call to nerf resolves<ul>
+<li>The stack is in the same state as it wes before the method call</li>
+</ul>
+</li>
+<li>There is an extra String on the Heap<ul>
+<li>[It can be garbage collected]</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>The next method call also creates a new String on the heap</li>
+<li>Replaces “116” with “250”</li>
+<li>Method returns a reference to the new String that was created</li>
+<li>The reference is stored in a variable in the main method</li>
+</ul>
+<br>
+
+<ul>
+<li>We create another new String in main</li>
+<li>The reference is never stored in a variable</li>
+<li>Never see this String in our code</li>
+</ul>
+<hr>
+<h2 id="List-are-Immutable"><a href="#List-are-Immutable" class="headerlink" title="List are Immutable"></a><strong>List are Immutable</strong></h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">firstNPrimes</span></span>(n: <span class="type">Int</span>): <span class="type">List</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="type">List</span>()</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="type">List</span>(<span class="number">2</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> nMinusOnePrimes: <span class="type">List</span>[<span class="type">Int</span>] = firstNPrimes(n - <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">val</span> maxPrime: <span class="type">Int</span> = nMinusOnePrimes.max</span><br><span class="line">        findPrime(maxPrime + <span class="number">1</span>, nMinusOnePrimes) :: nMinusOnePrimes</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">findPrime</span></span>(i: <span class="type">Int</span>, knownPrimes: <span class="type">List</span>[<span class="type">Int</span>]): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">if</span> (!knownPrimes.foldLeft(<span class="literal">false</span>)(_ || i % _ == <span class="number">0</span>)) &#123;</span><br><span class="line">        i</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        findPrime(i + <span class="number">1</span>, knownPrimes)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    firstNPrimes(<span class="number">3</span>).foreach(println)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Recursive calls are added to the stack until we reach the base case of n == 1</li>
+<li>Create a new immutable List on the heap</li>
+</ul>
+<br>
+
+<ul>
+<li>The base case returns a reference to the List it created</li>
+<li>This List is immutable so it will never change<ul>
+<li>Even though its reference is passed around different frames</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>The previous recursive call gets this returned reference</li>
+<li>Accesses that List on the heap</li>
+</ul>
+<br>
+
+<ul>
+<li>The reference is passed to the next method call</li>
+<li>This is the reference behavior we expect</li>
+</ul>
+<br>
+
+<ul>
+<li>Since 3 is not divisible by 2<ul>
+<li>Return the base case of i</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Get return value of 3 and prepend it to the List of know primes</li>
+<li>But Lists are immutable!<ul>
+<li>Create a new List with 3 prepended</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>A reference to the new List is returned</li>
+<li>The original List remains on the heap an is unchanged</li>
+</ul>
+<br>
+
+<ul>
+<li><strong>Important:</strong></li>
+<li>If another part of our program has the reference @1 stored in q variable<ul>
+<li>Nothing we do can interfaere with its computation</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>The first recursive call gets the reference @2</li>
+<li>Continues its computation with this reference</li>
+<li>Make a call to findPrime based on the List  @2</li>
+<li>Base case is false since 4%2 == 0</li>
+<li>Recursive call is made to check if the next integer is prime</li>
+<li>Hit the base case since 5 is prime</li>
+<li>Return 5 up the recursion</li>
+</ul>
+<br>
+
+<ul>
+<li>With the return value of 5<ul>
+<li>firstNPrimes can finish its computation</li>
+</ul>
+</li>
+<li>Create another new List on the heap</li>
+<li>Return the new lists containing all three primes</li>
+</ul>
+<br>
+
+<ul>
+<li>Main gets the List at reference @3</li>
+<li>The other two Lists are sitll on the Heap and are unchanged<ul>
+<li>[Not garbage collected. More details coming]</li>
+</ul>
+</li>
+<li>The primes 5,3,2 are printed to the console</li>
+</ul>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>Restriction:</strong><br>No state is allowed in this question. Specifically, the keyword “var” is banned. (ie. You are expected to use a recursive solution)</p>
+<p><strong>Question:</strong><br>In a package named “functions” write a class named Point with the following features:</p>
+<ul>
+<li>Has a constructor that takes 2 values (Use val) of type Double named “x” and “y”</li>
+<li>A method named “add” that takes a Point and returns a Point that is the component-wise addition of this Point and the input Point<ul>
+<li>Ex. (1.0, 2.0) + (4.0, 1.0) = (5.0, 3.0)</li>
+</ul>
+</li>
+<li>A method named “multiplyByScalar” that takes a Double and returns a new Point that is this Point multiplied by the input<ul>
+<li>Ex. 5.0 * (1.0, 2.0) = (5.0, 10.0)</li>
+</ul>
+</li>
+</ul>
+<p><strong>Testing:</strong><br>In a package named “tests” create a class named “TestPoint” as a test suite that tests all the functionality listed above</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/12/27/LO3-5-Immutability/">https://tianzhe.me/2020/12/27/LO3-5-Immutability/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/27/LO4-1-Linked-List/"><img class="prev-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSE116的学习笔记-Lec4-1:Linked_List</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/27/LO3-4-Functions/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec3-4:Functions</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>

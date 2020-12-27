@@ -1,0 +1,343 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec5-4:WebSocket_Server | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：WebSocket Server"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/12/27/LO5-4-WebSocket-Server/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec5-4:WebSocket_Server"><meta property="og:url" content="https://tianzhe.me/2020/12/27/LO5-4-WebSocket-Server/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：WebSocket Server"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-12-27T17:50:34.000Z"><meta property="article:modified_time" content="2020-12-27T19:55:13.218Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-12-27 14:55:13'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">40</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#WebSocket-Server"><span class="toc-number">1.</span> <span class="toc-text">WebSocket Server</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#The-Problem"><span class="toc-number">2.</span> <span class="toc-text">The Problem</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#socket-io"><span class="toc-number">3.</span> <span class="toc-text">socket.io</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#socket-io-Server-in-Scala"><span class="toc-number">4.</span> <span class="toc-text">socket.io Server in Scala</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Web-Socket-Server"><span class="toc-number">5.</span> <span class="toc-text">Web Socket Server</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Web-Socket-Clients"><span class="toc-number">6.</span> <span class="toc-text">Web Socket Clients</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WebSocket-Client-Web"><span class="toc-number">7.</span> <span class="toc-text">WebSocket Client - Web</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">8.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec5-4:WebSocket_Server</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-27T17:50:34.000Z" title="发表于 2020-12-27 12:50:34">2020-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-27T19:55:13.218Z" title="更新于 2020-12-27 14:55:13">2020-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="WebSocket-Server"><a href="#WebSocket-Server" class="headerlink" title="WebSocket Server"></a>WebSocket Server</h1><p>Teach you how to write a simple server:)</p>
+<h1 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h1><ul>
+<li>In CSE115 you used HTTP request / responses to build web apps</li>
+<li>If you wanted more data from the server after the page loads, you used AJAX<ul>
+<li>Server hosts JSON data at certain end points</li>
+<li>Client makes an AJAX call to retrieve the most current data</li>
+</ul>
+</li>
+<li>But the server has to wait for a request before sending a response</li>
+</ul>
+<br>
+
+<ul>
+<li>What if the server wants to send time-sensitive data without waiting for a request?</li>
+<li>In CSE115<ul>
+<li>Built a chat app using polling</li>
+<li>Client sent AJAX requests at regular intervals</li>
+<li>Only get updates when AJAX request is sent</li>
+</ul>
+</li>
+<li>Can use long-polling<ul>
+<li>Server hangs on poll requests until it has new data to send</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>A newer solution (Standardized in 2011)</li>
+<li>Establishes a lasting connection<ul>
+<li>Enables 2-way communication between server and client</li>
+</ul>
+</li>
+<li>Server can push updates to clients over the web socket without waiting for the client to make a new request</li>
+</ul>
+<h1 id="socket-io"><a href="#socket-io" class="headerlink" title="socket.io"></a>socket.io</h1><ul>
+<li>A library built on top of web sockets</li>
+<li>Maintains connections and reconnecting</li>
+<li>Uses message types<ul>
+<li>Similar to actors, except the message type is always a string</li>
+</ul>
+</li>
+<li>Add listeners to react to different message types<ul>
+<li>Receiving a message is an event</li>
+<li>Listener code will be called when the event occurs</li>
+</ul>
+</li>
+</ul>
+<h1 id="socket-io-Server-in-Scala"><a href="#socket-io-Server-in-Scala" class="headerlink" title="socket.io Server in Scala"></a>socket.io Server in Scala</h1><ul>
+<li>New library</li>
+<li>Link on the course website</li>
+<li>Dependency included in pom.xml in examples repo</li>
+</ul>
+<h1 id="Web-Socket-Server"><a href="#Web-Socket-Server" class="headerlink" title="Web Socket Server"></a>Web Socket Server</h1><ul>
+<li>Import from the new library</li>
+<li>Setup and start the server<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.corundumstudio.socketio.listener.&#123;<span class="type">ConnectListener</span>, <span class="type">DataListener</span>, <span class="type">DisconnectListener</span>&#125;</span><br><span class="line"><span class="keyword">import</span> com.corundumstudio.socketio.&#123;<span class="type">AckRequest</span>, <span class="type">Configuration</span>, <span class="type">SocketIOClient</span>, <span class="type">SocketIOServer</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Server</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> config: <span class="type">Configuration</span> = <span class="keyword">new</span> <span class="type">Configuration</span> &#123;</span><br><span class="line">        setHostname(<span class="string">&quot;localhost&quot;</span>)</span><br><span class="line">        setPort(<span class="number">8080</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> server: <span class="type">SocketIOServer</span> = <span class="keyword">new</span> <span class="type">SocketIOServer</span>(config)</span><br><span class="line"></span><br><span class="line">    server.addConnectListener(<span class="keyword">new</span> <span class="type">ConnectionListener</span>())</span><br><span class="line">    server.addDisconnectListener(<span class="keyword">new</span> <span class="type">DisconnectionListener</span>())</span><br><span class="line">    server.addEventListener(<span class="string">&quot;chat_message&quot;</span>, classOf[<span class="type">String</span>], <span class="keyword">new</span> <span class="type">MessageListener</span>())</span><br><span class="line">    server.addEventListener(<span class="string">&quot;stop_server&quot;</span>, classOf[<span class="type">Nothing</span>], <span class="keyword">new</span> <span class="type">StopListener</span>(<span class="keyword">this</span>))</span><br><span class="line"></span><br><span class="line">    server.start()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Create a configuration object for the server</li>
+<li>This server will run on localhost port 8080<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> config: <span class="type">Configuration</span> = <span class="keyword">new</span> <span class="type">Configuration</span> &#123;</span><br><span class="line">    setHostname(<span class="string">&quot;localhost&quot;</span>)</span><br><span class="line">    setPort(<span class="number">8080</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Create and start the server</li>
+<li>Use the configuration to tell the library how to setup the server</li>
+<li>Call the start() method to start listening for connections<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> server: <span class="type">SocketIOServer</span> = <span class="keyword">new</span> <span class="type">SocketIOServer</span>(config) <span class="comment">// Create a server</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">server.start() <span class="comment">// Start the server</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Add listener to handle different event types</li>
+<li>Connect and disconnect listeners to react to clients connecting and disconnecting</li>
+<li>Event listeners for each different message tyoe received from clients<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">server.addConnectListener(<span class="keyword">new</span> <span class="type">ConnectionListener</span>()) <span class="comment">// added connect listener</span></span><br><span class="line">server.addDisconnectListener(<span class="keyword">new</span> <span class="type">DisconnectionListener</span>()) <span class="comment">// added disconnect listener</span></span><br><span class="line">server.addEventListener(<span class="string">&quot;chat_message&quot;</span>, classOf[<span class="type">String</span>], <span class="keyword">new</span> <span class="type">MessageListener</span>()) <span class="comment">// added event listener</span></span><br><span class="line">server.addEventListener(<span class="string">&quot;stop_server&quot;</span>, classOf[<span class="type">Nothing</span>], <span class="keyword">new</span> <span class="type">StopListener</span>(<span class="keyword">this</span>)) <span class="comment">// added event listener</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>For connect and disconnect<ul>
+<li>Create classes overriding ConnectListener and DisconnectListener</li>
+<li>Implement the onConnect / onDisconnect methods</li>
+</ul>
+</li>
+<li>These methods take a reference to the sending socket as a parameter<ul>
+<li>Can use this reference to send messages to the client</li>
+<li>Usually want to store each reference to send messages later<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">server.addConnectListener(<span class="keyword">new</span> <span class="type">ConnectionListener</span>())</span><br><span class="line">server.addConnectListener(<span class="keyword">new</span> <span class="type">DisconnectionListener</span>())</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConnectionListener</span>(<span class="params"></span>) <span class="keyword">extends</span> <span class="title">ConnectListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onConnect</span></span>(socket: <span class="type">SocketIOClient</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;Connected: &quot;</span> + socket)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DisconnectionListener</span>(<span class="params"></span>) <span class="keyword">extends</span> <span class="title">DisconnectListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onDisconnect</span></span>(socket: <span class="type">SocketIOClient</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;Disconnected: &quot;</span> + socket)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>To receive messages, specify the message type and the class of the message<ul>
+<li>Create classes extending DataListener[message_type]</li>
+</ul>
+</li>
+<li>For message class we’ll use<ul>
+<li>String to receive text data</li>
+<li>Nothing if it’s just a message (Similar to an actor receiving a case object)<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">server.addEventListener(<span class="string">&quot;chat_message&quot;</span>, classOf[<span class="type">String</span>], <span class="keyword">new</span> <span class="type">MessageListener</span>())</span><br><span class="line">server.addEventListener(<span class="string">&quot;stop_server&quot;</span>, classOf[<span class="type">Nothing</span>], <span class="keyword">new</span> <span class="type">StopListener</span>(<span class="keyword">this</span>))</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MessageListener</span>(<span class="params"></span>) <span class="keyword">extends</span> <span class="title">DataListener</span>[<span class="type">String</span>] </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onData</span></span>(socket: <span class="type">SocketIOClient</span>, data: <span class="type">String</span>, ackRequest: <span class="type">AckRequest</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;received_message: &quot;</span> + data + <span class="string">&quot;from: &quot;</span> + socket)</span><br><span class="line">        socket.sendEvent(<span class="string">&quot;ACK&quot;</span>, <span class="string">&quot;I received your message of &quot;</span> + data)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StopListener</span>(<span class="params">server: <span class="type">Server</span></span>) <span class="keyword">extends</span> <span class="title">DataListener</span>[<span class="type">Nothing</span>] </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onData</span></span>(socket: <span class="type">SocketIOClient</span>, data: <span class="type">Nothing</span>, ackRequest: <span class="type">AckRequest</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        println(<span class="string">&quot;stopping server&quot;</span>)</span><br><span class="line">        server.server.stop()</span><br><span class="line">        println(<span class="string">&quot;safe to stop program&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Use the reference to the Socket to send messages to the client</li>
+<li>Specify the type of the message as a String</li>
+<li>If the message contains data, use a second String<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">socket.sendEvent(<span class="string">&quot;ACK&quot;</span>, <span class="string">&quot;I received your message of &quot;</span> + data)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="Web-Socket-Clients"><a href="#Web-Socket-Clients" class="headerlink" title="Web Socket Clients"></a>Web Socket Clients</h1><ul>
+<li>We’ve set up a web socket server that will listen for connections and process message</li>
+<li>Now, let’s build a web socket client that will connect to the server</li>
+</ul>
+<h1 id="WebSocket-Client-Web"><a href="#WebSocket-Client-Web" class="headerlink" title="WebSocket Client - Web"></a>WebSocket Client - Web</h1><ul>
+<li>First, setup the HTML</li>
+<li>Layout and style of the page<ul>
+<li>Could add CSS for more style<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Web Socket Client Example<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> <span class="attr">src</span>=<span class="string">&quot;https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">id</span>=<span class="string">&quot;chat_input&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;gold&quot;</span> <span class="attr">onclick</span>=<span class="string">&quot;sendMessage();&quot;</span>&gt;</span>Submit<span class="tag">&lt;/<span class="name">botton</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;display_message&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;WebClient.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Download the socket.io JavaScript client library</li>
+<li>This library contains all the code we’ll need to connect to pur server<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> <span class="attr">src</span>=<span class="string">&quot;https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Add elements for the user to enter and send a message</li>
+<li>In JavaScript, we’ll implement the sendMessage() function<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">id</span>=<span class="string">&quot;chat_input&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;gold&quot;</span> <span class="attr">onclick</span>=<span class="string">&quot;sendMessage();&quot;</span>&gt;</span>Submit<span class="tag">&lt;/<span class="name">botton</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;display_message&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Download our JavaScript file</li>
+<li>This script runs codes to connect to the server as soon as it’s downloaded<ul>
+<li>Include this at the end of the body so the page loads before connecting to the server<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;WebClient.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>In WebClinet.js</li>
+<li>Call io.connect to the server<ul>
+<li>Returns a reference to the created socket<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> socket = io.connect(<span class="string">&quot;http://localhost:8080&quot;</span>, &#123;<span class="attr">transports</span>: &#123;<span class="string">&#x27;websocket&#x27;</span>&#125;&#125;);</span><br><span class="line"></span><br><span class="line">socket.on(<span class="string">&#x27;ACK&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;display_message&quot;</span>).innerHTML = event;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">socker.on(<span class="string">&#x27;server_stopped&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;display_message&quot;</span>).innerHTML = <span class="string">&quot;The server has stopped&quot;</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendMessage</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> message = <span class="built_in">document</span>.getElementById(<span class="string">&quot;chat_input&quot;</span>).value</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;chat_input&quot;</span>).value = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    socket.emit(<span class="string">&quot;chat_message&quot;</span>, message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Define how the socket will react to different message types with the “on” method</li>
+<li>The “on” method takes the message type and a function as arguments<ul>
+<li>Call the function whenever a message of that type is received from the server<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">socket.on(<span class="string">&#x27;ACK&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;display_message&quot;</span>).innerHTML = event;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">socker.on(<span class="string">&#x27;server_stopped&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&quot;display_message&quot;</span>).innerHTML = <span class="string">&quot;The server has stopped&quot;</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>The function should take a parameter which will contain the data of the message if there is any</li>
+<li>We receive an ACK message containing a string which we display on the page (Similar to case class)</li>
+<li>We receive a server_stopped message and inform he user that the server stopped (Similar to case object)</li>
+</ul>
+<br>
+
+<ul>
+<li>To send a message, call emit</li>
+<li>Takes the message type and the content of the message, if any</li>
+<li>Can call emit with only message type to send a message with no content (Similar to case object)</li>
+</ul>
+<p><strong>Web Socket Demo</strong></p>
+<hr>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>Task:</strong><br>Write a Web Socket Server that counts the number of messages it receives</p>
+<br>
+
+<p>In a package named server, write a class named <code>LectureServer</code> that:</p>
+<ul>
+<li>When created, sets up a web socket server listening for connections on localhost:8080</li>
+<li>Listens for messages of type “increment” with no data</li>
+<li>Has a method named <code>numberOfMessages</code> that returns (as an Int) the number of times a message of type “increment” was received</li>
+</ul>
+<p><strong>Testing:</strong><br>No test:)</p>
+<p><strong>Hint:</strong><br>If you have no idea how to write, check prof. example repo -&gt; <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/hartloff/CSE116-Examples">link</a>   </p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/12/27/LO5-4-WebSocket-Server/">https://tianzhe.me/2020/12/27/LO5-4-WebSocket-Server/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/27/LO5-5-WebSocket-Clients/"><img class="prev-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSE116的学习笔记-Lec5-5:WebSocket_Clients</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/27/LO5-3-Actors/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec5-3:Actors</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>

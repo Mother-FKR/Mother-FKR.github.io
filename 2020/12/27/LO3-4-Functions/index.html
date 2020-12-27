@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec3-4:Functions | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：Functions"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/12/27/LO3-4-Functions/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec3-4:Functions"><meta property="og:url" content="https://tianzhe.me/2020/12/27/LO3-4-Functions/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：Functions"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-12-27T17:48:25.000Z"><meta property="article:modified_time" content="2020-12-27T18:34:48.609Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-12-27 13:34:48'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">40</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Functions"><span class="toc-number">1.</span> <span class="toc-text">Functions</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Custom-Sorting"><span class="toc-number">2.</span> <span class="toc-text">Custom Sorting</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Returning-Functions"><span class="toc-number">3.</span> <span class="toc-text">Returning Functions</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Collection-Methods"><span class="toc-number">4.</span> <span class="toc-text">Collection Methods</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#For-Each"><span class="toc-number">4.1.</span> <span class="toc-text">For Each</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filter"><span class="toc-number">4.2.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Map"><span class="toc-number">4.3.</span> <span class="toc-text">Map</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Yield"><span class="toc-number">4.4.</span> <span class="toc-text">Yield</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reduce"><span class="toc-number">4.5.</span> <span class="toc-text">Reduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fold"><span class="toc-number">4.6.</span> <span class="toc-text">Fold</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Example-Polunomials"><span class="toc-number">4.7.</span> <span class="toc-text">Example - Polunomials</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">5.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec3-4:Functions</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-27T17:48:25.000Z" title="发表于 2020-12-27 12:48:25">2020-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-27T18:34:48.609Z" title="更新于 2020-12-27 13:34:48">2020-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Functions"><a href="#Functions" class="headerlink" title="Functions"></a>Functions</h1><p>We have functions today:)</p>
+<h1 id="Custom-Sorting"><a href="#Custom-Sorting" class="headerlink" title="Custom Sorting"></a>Custom Sorting</h1><ul>
+<li>We can sort any type with any comparatror</li>
+<li>But what if we want to sort points by their distance from a reference point<ul>
+<li>In general: what if the comparator needs more parameters than just the two elements?</li>
+</ul>
+</li>
+<li>We can dynamically create a new function with the additional parameters “built-in”</li>
+</ul>
+<h1 id="Returning-Functions"><a href="#Returning-Functions" class="headerlink" title="Returning Functions"></a>Returning Functions</h1><ul>
+<li>We can write a function / method that takes all the needed parameters and returns a funcrtion that fits the signature of a comparator</li>
+<li>The distanceComparator method returns a comparator that compares the distance to a reference point</li>
+</ul>
+<br>
+
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">distacne</span></span>(v1: <span class="type">PhysicsVector</span>, v2: <span class="type">PhysicsVector</span>): <span class="type">Double</span> = &#123;</span><br><span class="line">    <span class="type">Math</span>.sqrt(<span class="type">Math</span>.pow(v1.x - v2.x, <span class="number">2.0</span>) + <span class="type">Math</span>.pow(v1.y - v2.y, <span class="number">2.0</span>) + <span class="type">Math</span>.pow(v1.z - v2.z, <span class="number">2.0</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">distanceComparator</span></span>(referencePoint: <span class="type">PhysicsVector</span>): (<span class="type">PhysicsVector</span>, <span class="type">PhysicsVector</span>) =&gt; <span class="type">Boolean</span> = &#123;</span><br><span class="line">    (v1: <span class="type">PhysicsVector</span>, v2: <span class="type">PhysicsVector</span>) =&gt; &#123;</span><br><span class="line">        distance(v1, referencePoint) &lt; distance(v2, referencePoint)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Use distanceComparator to create a comparator function when needed</li>
+<li>Can create different comparators with different reference points<ul>
+<li>Global state would only allow one comparator at a time<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> referencePoint = <span class="keyword">new</span> <span class="type">PhysicsVector</span>(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.0</span>)</span><br><span class="line"><span class="keyword">val</span> sortedPoints = <span class="type">NergeSort</span>.mergeSort(points, distanceComparator(referencePoint))</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Collection-Methods"><a href="#Collection-Methods" class="headerlink" title="Collection Methods"></a>Collection Methods</h1><ul>
+<li>We can apply first-order functions to compress our code when working with data structures</li>
+<li>We’ll see a variety of methods that take functions as parameters to help us work with data</li>
+</ul>
+<h2 id="For-Each"><a href="#For-Each" class="headerlink" title="For Each"></a>For Each</h2><ul>
+<li>Call a function on each elemnents of a List</li>
+<li>Only use for the side-effects<ul>
+<li>ie. Not too useful when embracing immutability</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> words: <span class="type">List</span>[<span class="type">String</span>] = <span class="type">List</span>(<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>)</span><br><span class="line">words.foreach(println)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">zero</span></span><br><span class="line"><span class="comment">one</span></span><br><span class="line"><span class="comment">two </span></span><br><span class="line"><span class="comment">three</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h2><ul>
+<li>Takes a function that returns a Boolean</li>
+<li>Returns a new List containing only the elements for which the function returns true</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> words: <span class="type">List</span>[<span class="type">String</span>] = <span class="type">List</span>(<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> filteredWords: <span class="type">List</span>[<span class="type">String</span>] = words.filter(_.length &gt; <span class="number">3</span>)</span><br><span class="line">filteredWords.foreach(printtln)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">zero</span></span><br><span class="line"><span class="comment">three</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><ul>
+<li>Takes a function of the data type to another data type</li>
+<li>Returns a new List containing the retun values of the function with each element as an input</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers: <span class="type">List</span>[<span class="type">Double</span>] = <span class="type">List</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>)</span><br><span class="line"><span class="keyword">val</span> numberSquared: <span class="type">List</span>[<span class="type">Double</span>] = numbers.map(<span class="type">Math</span>.pow(_, <span class="number">2.0</span>))</span><br><span class="line">numbersSquared.foreach(println)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">1.0</span></span><br><span class="line"><span class="comment">4.0</span></span><br><span class="line"><span class="comment">9.0</span></span><br><span class="line"><span class="comment">16.0</span></span><br><span class="line"><span class="comment">25.0</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>The map method takes 2 type parameters</li>
+<li>We can provide a function that “maps” the elements to a different type<ul>
+<li>The types can be inferred by the types of the provided function</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> words: <span class="type">List</span>[<span class="type">String</span>] = <span class="type">List</span>(<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> wordLengths: <span class="type">List</span>[<span class="type">Int</span>] = words.map(_.length)</span><br><span class="line">wordLengths.foreach(println)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">4</span></span><br><span class="line"><span class="comment">3</span></span><br><span class="line"><span class="comment">3</span></span><br><span class="line"><span class="comment">5</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Yield"><a href="#Yield" class="headerlink" title="Yield"></a>Yield</h2><ul>
+<li>As alternate syntax to map, we can use the yield keyword</li>
+<li>Add the keyword yield before the body of a loop</li>
+<li>The last expression of the loop body will be “collected” at each iteration</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers: <span class="type">List</span>[<span class="type">Double</span>] = <span class="type">List</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>)</span><br><span class="line"><span class="keyword">val</span> numbersSquared: <span class="type">List</span>[<span class="type">Double</span>] = <span class="keyword">for</span> (number &lt;- numbers) <span class="keyword">yield</span> &#123;</span><br><span class="line">    <span class="type">Math</span>.pow(number, <span class="number">2.0</span>)</span><br><span class="line">&#125;</span><br><span class="line">numbersSquared.foreach(println)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">1.0</span></span><br><span class="line"><span class="comment">4.0</span></span><br><span class="line"><span class="comment">9.0</span></span><br><span class="line"><span class="comment">16.0</span></span><br><span class="line"><span class="comment">25.0</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Using yield will create a data structure of the same type as the one being iterated over</li>
+<li>It’s not always possible to match the type exactly</li>
+<li>Scala will default to certain data structure<ul>
+<li>Use toList tp convert the default type to a List</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numberSquared: <span class="type">List</span>[<span class="type">Double</span>] = (<span class="keyword">for</span>(number &lt;- <span class="number">1</span> to <span class="number">5</span>) <span class="keyword">yield</span> &#123;</span><br><span class="line">    <span class="type">Math</span>.pow(number, <span class="number">2.0</span>)</span><br><span class="line">&#125;).toList</span><br><span class="line">numbersSquared.foreach(println)</span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">Will print:</span></span><br><span class="line"><span class="comment">1.0</span></span><br><span class="line"><span class="comment">4.0</span></span><br><span class="line"><span class="comment">9.0</span></span><br><span class="line"><span class="comment">16.0</span></span><br><span class="line"><span class="comment">25.0</span></span><br><span class="line"><span class="comment">***/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Reduce"><a href="#Reduce" class="headerlink" title="Reduce"></a>Reduce</h2><ul>
+<li>Takes a function that combines two values of the data type intyto a single value of that type</li>
+<li>Calls this function on all elements<ul>
+<li>Combines the data into a single value</li>
+</ul>
+</li>
+<li>The first parameter of the function is the accumulator<ul>
+<li>Stores the total value accumulated so far</li>
+<li>Initialized as the first element (Note: This example breaks if 1.0 is not the first elementa)</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers: <span class="type">List</span>[<span class="type">Double</span>] = <span class="type">List</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>)</span><br><span class="line"><span class="keyword">val</span> sumSquares: (<span class="type">Double</span>, <span class="type">Double</span>) =&gt; <span class="type">Double</span> = (a: <span class="type">Double</span>, b: <span class="type">Double</span>) =&gt; a + <span class="type">Math</span>.pow)(b, <span class="number">2.0</span>)</span><br><span class="line"><span class="keyword">val</span> sumOfSquares: <span class="type">Double</span> = numbers.reduce(sumSquares)</span><br><span class="line">println(sumOfSquares) <span class="comment">// 55.0</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>We can use the _ shorthand with two parameters<ul>
+<li>The order of appearance of the _’s is the parameter order</li>
+</ul>
+</li>
+<li>Can not use _ shorthand if you need to use a input twice</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers: <span class="type">List</span>[<span class="type">Double</span>] = <span class="type">List</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>)</span><br><span class="line"><span class="keyword">val</span> sumOfSquares: <span class="type">Double</span> = numbers.reduce(_ + <span class="type">Math</span>.pow(_, <span class="number">2.0</span>))</span><br><span class="line">println(sumOfSquares) <span class="comment">// 55.0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Fold"><a href="#Fold" class="headerlink" title="Fold"></a>Fold</h2><ul>
+<li>Similar to reduce</li>
+<li>Use fold if you need to initialize your accumulator</li>
+<li>Use fold if you are reducing a different type than the data type</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers: <span class="type">List</span>[<span class="type">Double</span>] = <span class="type">List</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>)</span><br><span class="line"><span class="keyword">val</span> mult: <span class="type">Double</span> = numbers.fold(<span class="number">1.0</span>)(_ * _)</span><br><span class="line">println(mult) <span class="comment">// 1*2*3*4*5 = 120.0</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>To accumulate to a type different than the data type<ul>
+<li>Use the left / right version of fold</li>
+</ul>
+</li>
+<li>Initial value determines the accumulator type<ul>
+<li>This value is returned if the input is the empty list</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> words: <span class="type">List</span>[<span class="type">String</span>] = <span class="type">List</span>(<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> totalLength: <span class="type">Int</span> = words.foldLeft(<span class="number">0</span>)(_ + _.length)</span><br><span class="line"><span class="keyword">val</span> totalLength2: <span class="type">Int</span> = words.foldRight(<span class="number">0</span>)(_.length + _)</span><br><span class="line">println(totalLength) <span class="comment">// 15</span></span><br><span class="line">println(totalLength2) <span class="comment">// 15</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Using fold defaults to foldLeft<ul>
+<li>Start with the first (left=most) element</li>
+</ul>
+</li>
+<li>To accumulate from the end of the List use foldRight<ul>
+<li>Must reverse the parameter order when using foldRight / reduceRight<ul>
+<li>Accumulator is second parameter, data is first element</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Example-Polunomials"><a href="#Example-Polunomials" class="headerlink" title="Example - Polunomials"></a>Example - Polunomials</h2><p>———–Check the Lecture Recording—————</p>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>Restriction:</strong><br>No state is allowed in this question. Specifically, the keyword “var” is banned. (ie. You are expected to use a recursive solution)</p>
+<p><strong>Question:</strong><br>In a package named “functions” add to the <strong>object</strong> named Numbers (The object with your fib method) a method named averageInRange that:</p>
+<ul>
+<li>Takes a List of Doubles as a parameter</li>
+<li>Returns a functions that takes 2 Doubles and returns a Double<ul>
+<li>This function will return the average of all the numbers in the List that are between the two input Double</li>
+<li>Exclude the endpoints (ie. Use &lt; and &gt;, not &lt;= and &gt;=)</li>
+<li>The first parameter of the function is the min value and the second is the max value of the range</li>
+<li>Ex. Averaging the list (1.0, 4.0, 2.0, 5.0, 3.0) with endpoints 1.5 and 4.9<ul>
+<li>Average in range is the average of (2.0, 3.0, 4.0) == 3.0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Testing:</strong><br>In a package named “tests” create a class named “TestAverageInRange” as a test suite that tests all the functionality listed above. (You don’t have to test end point exclusion since Doubles are not reliably equal)</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/12/27/LO3-4-Functions/">https://tianzhe.me/2020/12/27/LO3-4-Functions/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/27/LO3-5-Immutability/"><img class="prev-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSE116的学习笔记-Lec3-5:Immutability</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/27/LO3-3-Recursion/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec3-3:Recursion</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>

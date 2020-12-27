@@ -1,0 +1,380 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec3-1:Sorting_Revisited | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：Sorting Revisited"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/12/27/LO3-1-Sorting-Revisited/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec3-1:Sorting_Revisited"><meta property="og:url" content="https://tianzhe.me/2020/12/27/LO3-1-Sorting-Revisited/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：Sorting Revisited"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-12-27T17:47:43.000Z"><meta property="article:modified_time" content="2020-12-27T18:35:27.387Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-12-27 13:35:27'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">40</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Sorting-Revisited"><span class="toc-number">1.</span> <span class="toc-text">Sorting - Revisited</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Sorting"><span class="toc-number">2.</span> <span class="toc-text">Sorting</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Custom-Sorting-in-Scala"><span class="toc-number">3.</span> <span class="toc-text">Custom Sorting in Scala</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#First-Order-Functions"><span class="toc-number">4.</span> <span class="toc-text">First-Order Functions</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Selection-Sort"><span class="toc-number">5.</span> <span class="toc-text">Selection Sort</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Type-Parameters"><span class="toc-number">6.</span> <span class="toc-text">Type Parameters</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Selection-Sort-1"><span class="toc-number">7.</span> <span class="toc-text">Selection Sort</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">8.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec3-1:Sorting_Revisited</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-27T17:47:43.000Z" title="发表于 2020-12-27 12:47:43">2020-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-27T18:35:27.387Z" title="更新于 2020-12-27 13:35:27">2020-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Sorting-Revisited"><a href="#Sorting-Revisited" class="headerlink" title="Sorting - Revisited"></a>Sorting - Revisited</h1><p>With First-Order Functions</p>
+<h1 id="Sorting"><a href="#Sorting" class="headerlink" title="Sorting"></a>Sorting</h1><p>Order elements in a data structure according to a comparator function</p>
+<br>
+
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="keyword">val</span> numberSorted = numbers.sorted</span><br><span class="line">println(numberSorted) <span class="comment">// List(-23, -8, -4, 5, 7, 10)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>The sorted method returns a new List containing the same elements as the original, but in sorted order</li>
+<li>Integer values have a default comparator<ul>
+<li>Less than function</li>
+<li>If an element is less than another element, it must be placed before the other element</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="keyword">val</span> numberSorted = numbers.sorted</span><br><span class="line">println(numberSorted) <span class="comment">// List(-23, -8, -4, 5, 7, 10)</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Custom-Sorting-in-Scala"><a href="#Custom-Sorting-in-Scala" class="headerlink" title="Custom Sorting in Scala"></a>Custom Sorting in Scala</h1><ul>
+<li>Sorting a list by the result of a function / method</li>
+<li>Calls the provided function / method on each element and sorts by the default ordering of the returned values</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="comment">// sort by the result of a method (like setting the key in Python sorting)</span></span><br><span class="line"><span class="keyword">val</span> numberSorted = numbers.sortBy(<span class="type">Math</span>.abs)</span><br><span class="line">println(numberSorted) <span class="comment">// List(-4, 5, 7, -8, 10, -23)</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Uses first-order functions / methods</li>
+<li>We just passed a method as an argument of another<ul>
+<li>Yes, you can do that!</li>
+<li>And you will do this often over the few weeks</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Passing a function / method allows us to use the default sorting order with a computed value</li>
+<li>What if we don’t want sort by the default ordering?<ul>
+<li>Ex.  Sort ints by decreasing order</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Sorting a list using a comparator function / method</li>
+<li>The comparator takes two values of the type being sorted<ul>
+<li>Return true if the first parameter should come before the second in the sorted order</li>
+<li>Return false otherwise (including ties)<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith((a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; a &gt; b)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numbersSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>This is a first-order function</li>
+<li>Provide the Parameter list and the body of the function</li>
+<li>For sortWith, write a function that:<ul>
+<li>Take 2 parameters matching the type of the List being sorted</li>
+<li>Return a Boolean<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith((a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; a &gt; b)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numbersSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Alternate setup</li>
+<li>We can create the function and store it in a variable<ul>
+<li>Type is (Int, Int) =&gt; Boolean</li>
+</ul>
+</li>
+<li>First-order functions are just values!<ul>
+<li>Can be sorted in variabless, passed as arguments, returned from methods<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="comment">// sorted by a comparator function/method. This function sorts in decreasing order</span></span><br><span class="line"><span class="keyword">val</span> comparator: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Boolean</span> = (a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; a &gt; b</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith(comparator)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numversSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="First-Order-Functions"><a href="#First-Order-Functions" class="headerlink" title="First-Order Functions"></a>First-Order Functions</h1><ul>
+<li>This is the entire definition of a first-order function<ul>
+<li>Creates an object of type function and returns its reference</li>
+<li>Parameter list in parentheses using usual syntax</li>
+<li>Use =&gt; to separate the parameter list from the body of the function</li>
+<li>Code that follows is the body of the function<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="comment">// sorted by a comparator function/method. This function sorts in decreasing order</span></span><br><span class="line"><span class="keyword">val</span> comparator: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Boolean</span> = (a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; a &gt; b</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith(comparator)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numversSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Can use the usual code block syntax with {}<ul>
+<li>Use this syntax if you want more than 1 line of code in your function<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// sorted by a comparator function/method. This function sorts in decreasing order</span></span><br><span class="line"><span class="keyword">val</span> comparator: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Boolean</span> = (a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; &#123;</span><br><span class="line">    a &gt; b</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith(comparator)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numversSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>This is the type of the function<ul>
+<li>Types of the parameters in parentheses</li>
+<li>Use =&gt; to separate the parameter types from the return type</li>
+<li>Then the return type<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> numbers = <span class="type">List</span>(<span class="number">5</span>, <span class="number">-23</span>, <span class="number">-8</span>, <span class="number">7</span>, <span class="number">-4</span>, <span class="number">10</span>)</span><br><span class="line"><span class="comment">// sorted by a comparator function/method. This function sorts in decreasing order</span></span><br><span class="line"><span class="keyword">val</span> comparator: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Boolean</span> = (a: <span class="type">Int</span>, b: <span class="type">Int</span>) =&gt; a &gt; b</span><br><span class="line"><span class="keyword">val</span> numbersSorted = numbers.sortWith(comparator)</span><br><span class="line"><span class="comment">// can be shortened to - numbers.sortWith(_ &gt; _)</span></span><br><span class="line">println(numversSorted) <span class="comment">// List(10, 7, 5, -4, -8, -23)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>A function is a value with a type<ul>
+<li>A function is an object stored on the heap</li>
+</ul>
+</li>
+<li>Can be used just like any other type</li>
+</ul>
+<br>
+
+<ul>
+<li>First-order functions in calculator<ul>
+<li>All operations take 2 Doubles and return a Double</li>
+<li>Can store operations in a variable</li>
+<li>Can reduce the number of states and complexity of your Calculator<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> operation: (<span class="type">Double</span>, <span class="type">Double</span>) =&gt; <span class="type">Double</span> = (x: <span class="type">Double</span>, y: <span class="type">Double</span>) =&gt; x * y</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Sorting a list using a comparator <strong>method</strong></li>
+<li>Can sort custom types with custom methods<ul>
+<li>Pass methods by name just like passing a variable storing a function</li>
+</ul>
+</li>
+<li>There’s no stopping the ways you can sort!<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compareAnimals</span></span>(a1: <span class="type">Animal</span>, a2: <span class="type">Animal</span>): <span class="type">Boolean</span> = &#123;</span><br><span class="line">    al.name.toLowerCase() &lt; a2.name.toLowerCase()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> animals: <span class="type">List</span>[<span class="type">Animal</span>] = <span class="type">List</span>(<span class="keyword">new</span> <span class="type">Cat</span>(<span class="string">&quot;morris&quot;</span>), <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">&quot;Finn), new Dog(&quot;</span><span class="type">Snoopy</span><span class="string">&quot;), new Cat(&quot;</span><span class="type">Garfield</span><span class="string">&quot;))</span></span><br><span class="line"><span class="string">val animalsSorted = animals.sortWith(compareAnimals)</span></span><br><span class="line"><span class="string">println(animalsSorted) // List(Finn, Garfield, morris, Snoopy)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="Selection-Sort"><a href="#Selection-Sort" class="headerlink" title="Selection Sort"></a>Selection Sort</h1><ul>
+<li>Iterate over the indices of a list<ul>
+<li>For each index, select the element that belongs there in the final sorted order</li>
+<li>Swap the current value with the correct one</li>
+</ul>
+</li>
+</ul>
+<p><img src="image/sort-1.png" alt="Sort"></p>
+<br>
+
+<ul>
+<li>Start with the first index</li>
+<li>Find the element that belongs there by taking the min of all values</li>
+<li>Swap the values</li>
+<li>Don’t have to recheck elements that are alreadt at the correct index</li>
+</ul>
+<p><img src="image/sort-2.png" alt="Sort"></p>
+<br>
+
+<p><img src="image/sort-3.png" alt="Sort"></p>
+<br>
+
+<ul>
+<li>The algorithm only needs to know how to compare 2 values<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">intSelectionSort</span></span>(inputData: <span class="type">List</span>[<span class="type">Int</span>], comparator: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Boolean</span>): <span class="type">List</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy only the reference of the input</span></span><br><span class="line">    <span class="keyword">var</span> data: <span class="type">List</span>[<span class="type">Int</span>] = inputData</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i &lt;- data.indices) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// find the min value/index from i to the end of the list</span></span><br><span class="line">        <span class="keyword">var</span> minFound = data.apply(i)</span><br><span class="line">        <span class="keyword">var</span> minIndex = i</span><br><span class="line">        <span class="keyword">for</span> (j &lt;- i until data.size) &#123;</span><br><span class="line">            <span class="keyword">val</span> currentValue = data.apply(j)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// make decisions based on the given comparatpr (this function can be thought of as a less than operator)</span></span><br><span class="line">            <span class="keyword">if</span> (comparator(currentValue, minFound)) &#123;</span><br><span class="line">                minFound = currentValue</span><br><span class="line">                minIndex = j</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// swap the value at i with the min value</span></span><br><span class="line">        data = data.updated(minIndex, data.apply(i))</span><br><span class="line">        data = data.updated(i, minFound)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// return the new list</span></span><br><span class="line">    data</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<p><strong>But how do we compare 2 values?</strong>              </p>
+<ol>
+<li>Take a comparator as a parameter just like sortWith</li>
+<li>Call the comparator whenever we need to compare 2 values</li>
+</ol>
+<h1 id="Type-Parameters"><a href="#Type-Parameters" class="headerlink" title="Type Parameters"></a>Type Parameters</h1><ul>
+<li>But what if we want to sort custom types?</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> animals: <span class="type">List</span>[<span class="type">Animal</span>] = <span class="type">List</span>(<span class="keyword">new</span> <span class="type">Cat</span>(<span class="string">&quot;morris&quot;</span>), <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">&quot;Finn), new Dog(&quot;</span><span class="type">Snoopy</span><span class="string">&quot;), new Cat(&quot;</span><span class="type">Garfield</span><span class="string">&quot;))</span></span><br><span class="line"><span class="string">val animalsSorted = animals.sortWith(compareAnimals)</span></span><br><span class="line"><span class="string">println(animalsSorted) // List(Finn, Garfield, morris, Snoopy)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Our selection sort only works with Ints</li>
+<li>We can write another method to sort Animals<ul>
+<li>And another for every type we want to sort? .. no</li>
+</ul>
+</li>
+<li>We’ll take the <strong>type</strong> as a <strong>parameter</strong> of our method<ul>
+<li>A “<strong>type parameter</strong>“</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Type parameters come before the parameter list</li>
+<li>Use [] instead of ()</li>
+<li>Can use this generic type throughout this method<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">selectionSort</span></span>[<span class="type">Type</span>](inputData: <span class="type">List</span>[<span class="type">Type</span>], comparator: (<span class="type">Type</span>, <span class="type">Type</span>) =&gt; <span class="type">Boolean</span>): <span class="type">List</span>[<span class="type">Type</span>] = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data: <span class="type">List</span>[<span class="type">Type</span>] = inputData</span><br><span class="line">    <span class="keyword">for</span> (i &lt;- data.indices) &#123;</span><br><span class="line">        <span class="keyword">var</span> minFound = data.apply(i)</span><br><span class="line">        <span class="keyword">var</span> minIndex = i</span><br><span class="line">        <span class="keyword">for</span> (j &lt;- i until data.size) &#123;</span><br><span class="line">            <span class="keyword">val</span> currentValue = data.apply(j)</span><br><span class="line">            <span class="keyword">if</span> (comparator(currentValue, minFound)) &#123;</span><br><span class="line">                minFound = currentValue</span><br><span class="line">                minIndex = j</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        data = data.updated(minIndex, data.apply(i))</span><br><span class="line">        data = data.updated(i, minFound)</span><br><span class="line">    &#125;</span><br><span class="line">    data</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>We can choose the type name</li>
+<li>Generic type names are often shortened to 1 character<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">selectionSort</span></span>[<span class="type">T</span>](inputData: <span class="type">List</span>[<span class="type">T</span>], comparator: (<span class="type">T</span>, <span class="type">T</span>) =&gt; <span class="type">Boolean</span>): <span class="type">List</span>[<span class="type">T</span>] = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data: <span class="type">List</span>[<span class="type">T</span>] = inputData</span><br><span class="line">    <span class="keyword">for</span> (i &lt;- data.indices) &#123;</span><br><span class="line">        <span class="keyword">var</span> minFound = data.apply(i)</span><br><span class="line">        <span class="keyword">var</span> minIndex = i</span><br><span class="line">        <span class="keyword">for</span> (j &lt;- i until data.size) &#123;</span><br><span class="line">            <span class="keyword">val</span> currentValue = data.apply(j)</span><br><span class="line">            <span class="keyword">if</span> (comparator(currentValue, minFound)) &#123;</span><br><span class="line">                minFound = currentValue</span><br><span class="line">                minIndex = j</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        data = data.updated(minIndex, data.apply(i))</span><br><span class="line">        data = data.updated(i, minFound)</span><br><span class="line">    &#125;</span><br><span class="line">    data</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<ul>
+<li>The type parameter can be inferred as long as the data and comparator types match<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> animals: <span class="type">List</span>[<span class="type">Animal</span>] = <span class="type">List</span>(<span class="keyword">new</span> <span class="type">Cat</span>(<span class="string">&quot;morris&quot;</span>), <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">&quot;Finn), new Dog(&quot;</span><span class="type">Snoopy</span><span class="string">&quot;), new Cat(&quot;</span><span class="type">Garfield</span><span class="string">&quot;))</span></span><br><span class="line"><span class="string">val animalsSorted = animals.sortWith(compareAnimals)</span></span><br><span class="line"><span class="string">println(animalsSorted) // List(Finn, Garfield, morris, Snoopy)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">selectionSort</span></span>[<span class="type">T</span>](inputData: <span class="type">List</span>[<span class="type">T</span>], comparator: (<span class="type">T</span>, <span class="type">T</span>) =&gt; <span class="type">Boolean</span>): <span class="type">List</span>[<span class="type">T</span>] = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data: <span class="type">List</span>[<span class="type">T</span>] = inputData</span><br><span class="line">    <span class="keyword">for</span> (i &lt;- data.indices) &#123;</span><br><span class="line">        <span class="keyword">var</span> minFound = data.apply(i)</span><br><span class="line">        <span class="keyword">var</span> minIndex = i</span><br><span class="line">        <span class="keyword">for</span> (j &lt;- i until data.size) &#123;</span><br><span class="line">            <span class="keyword">val</span> currentValue = data.apply(j)</span><br><span class="line">            <span class="keyword">if</span> (comparator(currentValue, minFound)) &#123;</span><br><span class="line">                minFound = currentValue</span><br><span class="line">                minIndex = j</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        data = data.updated(minIndex, data.apply(i))</span><br><span class="line">        data = data.updated(i, minFound)</span><br><span class="line">    &#125;</span><br><span class="line">    data</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="Selection-Sort-1"><a href="#Selection-Sort-1" class="headerlink" title="Selection Sort"></a>Selection Sort</h1><ul>
+<li>This all works..</li>
+<li><strong>But it’s really slow!</strong></li>
+<li>The algorithm is inefficient – O(n^2)</li>
+<li>My implementation is even slower – O(n^3)<ul>
+<li>Very inefficient use of Lists</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>More efficiency coming soon</li>
+</ul>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>Question:</strong><br>In a package named “functions” create an object named Generics with a method named <code>mapFilter</code> that:</p>
+<ul>
+<li>Takes a type parameter T </li>
+<li>As parameters takes<ul>
+<li>A Map of Ints to T’s</li>
+<li>A function that takes an Int and returns a Boolean</li>
+</ul>
+</li>
+<li>Returns a List of T’s<ul>
+<li>The returned List will contain only the values in the input map that are mapped to by keys for which the input function returns true</li>
+<li>eg. We can think of the input function as a filter that decides which Map values will be added to the return list. If the filter returns true on a key, they value the key maps to will be in the returned list</li>
+<li>The order of the output List is not defined in this problem (You should be sorting lists in your testing)</li>
+</ul>
+</li>
+</ul>
+<p><strong>Testing:</strong><br>In a package named “tests” create a class named “TestFilterMap” as a test suite that tests all the functionality listed above</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/12/27/LO3-1-Sorting-Revisited/">https://tianzhe.me/2020/12/27/LO3-1-Sorting-Revisited/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/27/LO3-2-More-Sorting/"><img class="prev-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSE116的学习笔记-Lec3-2:More_Sorting</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/27/LO2-6-State-Pattern/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec2-6:State_Pattern</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>

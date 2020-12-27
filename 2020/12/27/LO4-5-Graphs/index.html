@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSE116的学习笔记-Lec4-5:Graphs | Tianzhe's blog</title><meta name="description" content="关于我在CSE-116中的笔记：Graphs"><meta name="keywords" content="Scala,教程,CSE116"><meta name="author" content="胡天哲,tianzheh@buffalo.edu"><meta name="copyright" content="胡天哲"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="shortcut icon" href="/image/favicon.jpeg"><link rel="canonical" href="https://tianzhe.me/2020/12/27/LO4-5-Graphs/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="msvalidate.01" content="E3ldS1S2QwwG6Wt7hTzCzP8cEsZe4qy7GuQn5C9D5Fk"/><meta name="baidu-site-verification" content="RZuOf3nNVc"/><meta property="og:type" content="article"><meta property="og:title" content="CSE116的学习笔记-Lec4-5:Graphs"><meta property="og:url" content="https://tianzhe.me/2020/12/27/LO4-5-Graphs/"><meta property="og:site_name" content="Tianzhe's blog"><meta property="og:description" content="关于我在CSE-116中的笔记：Graphs"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><meta property="article:published_time" content="2020-12-27T17:49:38.000Z"><meta property="article:modified_time" content="2020-12-27T18:52:01.022Z"><meta name="twitter:card" content="summary"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.1.1',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime: '天',
+  date_suffix: {"one_hour":"刚刚","hours":"小时前","day":"天前"},
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+      const expiryDay = ttl * 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    },
+  
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: undefined,
+  isSidebar: true,
+  postUpdate: '2020-12-27 13:52:01'
+}</script><noscript><style type="text/css">
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+  }
+}
+
+var autoChangeMode = '1'
+var t = saveToLocal.get('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (saveToLocal.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><meta name="generator" content="Hexo 5.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="https://avatars1.githubusercontent.com/u/62329498?s=400&amp;u=20198ec972904a758bc5f6ba4888c5ac6b6270fb&amp;v=4" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">40</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">9</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">14</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Graphs"><span class="toc-number">1.</span> <span class="toc-text">Graphs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Data-Structures-Review"><span class="toc-number">2.</span> <span class="toc-text">Data Structures: Review</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Data-Structures"><span class="toc-number">3.</span> <span class="toc-text">Data Structures</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Graohs"><span class="toc-number">4.</span> <span class="toc-text">Graohs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Graphs-Nodes-and-Edges"><span class="toc-number">5.</span> <span class="toc-text">Graphs - Nodes and Edges</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Graphs-Adjacency-List"><span class="toc-number">6.</span> <span class="toc-text">Graphs - Adjacency List</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paths"><span class="toc-number">7.</span> <span class="toc-text">Paths</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Breadth-First-Search-BFS"><span class="toc-number">8.</span> <span class="toc-text">Breadth-First Search (BFS)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Connected-Component"><span class="toc-number">8.1.</span> <span class="toc-text">Connected Component</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BFS"><span class="toc-number">8.2.</span> <span class="toc-text">BFS</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Connectivity"><span class="toc-number">9.</span> <span class="toc-text">Connectivity</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-Question"><span class="toc-number">10.</span> <span class="toc-text">Lecture Question</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Tianzhe's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页🏠</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴⌚️</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签🏷️</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类📖</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> 清单🧾</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐🎵</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影🎬</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 好友👬</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于👴</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">CSE116的学习笔记-Lec4-5:Graphs</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-27T17:49:38.000Z" title="发表于 2020-12-27 12:49:38">2020-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-27T18:52:01.022Z" title="更新于 2020-12-27 13:52:01">2020-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/">CSE116</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/CSE116/Scala/">Scala</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">926</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Graphs"><a href="#Graphs" class="headerlink" title="Graphs"></a>Graphs</h1><p>It has cycle, so you know: tree + cycle :/     </p>
+<h1 id="Data-Structures-Review"><a href="#Data-Structures-Review" class="headerlink" title="Data Structures: Review"></a>Data Structures: Review</h1><ul>
+<li>Sequential Data Structures<ul>
+<li>Elements stored in a specific order</li>
+<li>Ex: Array, List</li>
+</ul>
+</li>
+<li>Key-Value Store<ul>
+<li>Stores pairs of elements with no particular order</li>
+<li>Each key is associated with one value</li>
+<li>Ex: Map, Dictionary, Object</li>
+</ul>
+</li>
+<li>Tree<ul>
+<li>Non-linear structure</li>
+<li>Each element can be associated with multiple other elements</li>
+</ul>
+</li>
+</ul>
+<h1 id="Data-Structures"><a href="#Data-Structures" class="headerlink" title="Data Structures"></a>Data Structures</h1><ul>
+<li>How do we store datat with multiple interconnected associations?</li>
+<li>A [station, intersection, city] can have multiple connections</li>
+</ul>
+<br>
+
+<ul>
+<li>Let’s use trees</li>
+<li>Start with UCLA as the root</li>
+<li>Recursively add all chidden</li>
+</ul>
+<br>
+
+<ul>
+<li>Oops<ul>
+<li>We have duplicates in our data structure [See the video]</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Let’s try again<ul>
+<li>When we try to add a duplicate, add a reference to the existing node</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<h1 id="Graohs"><a href="#Graohs" class="headerlink" title="Graohs"></a>Graohs</h1><ul>
+<li>This is a graph [See the video]</li>
+<li>Similar to a tree, except cycles are allowed<ul>
+<li>Cycle: Can “travel” from a node back to itself without backtracking</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Because of the cycles, our tree traversals will get stuck in infinite recursion<ul>
+<li>No leaves to terminate the recursion</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>We’ll need a new way of representing this datat structure and new algorithms to work with the data </li>
+<li>Store the nodes and edges</li>
+</ul>
+<h1 id="Graphs-Nodes-and-Edges"><a href="#Graphs-Nodes-and-Edges" class="headerlink" title="Graphs - Nodes and Edges"></a>Graphs - Nodes and Edges</h1><ul>
+<li>Node: Each data element is stored in a node, similar to linked lists and trees</li>
+<li>Edge: A connection between two nodes</li>
+</ul>
+<h1 id="Graphs-Adjacency-List"><a href="#Graphs-Adjacency-List" class="headerlink" title="Graphs - Adjacency List"></a>Graphs - Adjacency List</h1><ul>
+<li>A map of nodes to all nodes connected to it through an edge</li>
+<li>This is how we’ll represnet graphs</li>
+<li>When creating a graph, we’ll assign each node a unique ID as a Int<ul>
+<li>Allows nodes with identical vlaues, but different IDs</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Graph</span>[<span class="type">A</span>] </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> nodes: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">A</span>] = <span class="type">Map</span>()</span><br><span class="line">    <span class="keyword">var</span> adjacencyList: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">List</span>[<span class="type">Int</span>]] = <span class="type">Map</span>()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addNode</span></span>(index: <span class="type">Int</span>, a: <span class="type">A</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        nodes += index -&gt; a</span><br><span class="line">        adjacencyList += index -&gt; <span class="type">List</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addEdge</span></span>(index1: <span class="type">Int</span>, index2: <span class="type">Int</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        adjacencyList += index1 -&gt; (index2 :: adjacencyList(index1))</span><br><span class="line">        adjacencyList += index2 -&gt; (index1 :: adjacencyList(index2))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>IDs fir each node are arbitray as long as they are unique</li>
+<li>Methods will work with IDs</li>
+<li>Values are only accessed when needed</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Graph</span>[<span class="type">A</span>] </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> nodes: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">A</span>] = <span class="type">Map</span>()</span><br><span class="line">    <span class="keyword">var</span> adjacencyList: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">List</span>[<span class="type">Int</span>]] = <span class="type">Map</span>()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addNode</span></span>(index: <span class="type">Int</span>, a: <span class="type">A</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        nodes += index -&gt; a</span><br><span class="line">        adjacencyList += index -&gt; <span class="type">List</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addEdge</span></span>(index1: <span class="type">Int</span>, index2: <span class="type">Int</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">        adjacencyList += index1 -&gt; (index2 :: adjacencyList(index1))</span><br><span class="line">        adjacencyList += index2 -&gt; (index1 :: adjacencyList(index2))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">GraphExample</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">val</span> graph: <span class="type">Graph</span>[<span class="type">String</span>] = <span class="keyword">new</span> <span class="type">Graph</span>() </span><br><span class="line">        graph.addNode(<span class="number">0</span>, <span class="string">&quot;UCLA&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">1</span>, <span class="string">&quot;STANFORD&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">2</span>, <span class="string">&quot;SRI&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">3</span>, <span class="string">&quot;UCSB&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">4</span>, <span class="string">&quot;RAND&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">5</span>, <span class="string">&quot;UTAH&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">6</span>, <span class="string">&quot;SDC&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">7</span>, <span class="string">&quot;MIT&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">8</span>, <span class="string">&quot;BBN&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">9</span>, <span class="string">&quot;LINCOLN&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">10</span>, <span class="string">&quot;CARNEGIE&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">11</span>, <span class="string">&quot;HARVARD&quot;</span>) </span><br><span class="line">        graph.addNode(<span class="number">12</span>, <span class="string">&quot;CASE&quot;</span>)</span><br><span class="line"></span><br><span class="line">        graph.addEdge(<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line">        graph.addEdge(<span class="number">0</span>,<span class="number">2</span>)</span><br><span class="line">        graph.addEdge(<span class="number">0</span>,<span class="number">3</span>)</span><br><span class="line">        graph.addEdge(<span class="number">0</span>,<span class="number">4</span>)</span><br><span class="line">        graph.addEdge(<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">        graph.addEdge(<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line">        graph.addEdge(<span class="number">3</span>,<span class="number">4</span>)</span><br><span class="line">        graph.addEdge(<span class="number">2</span>,<span class="number">5</span>)</span><br><span class="line">        graph.addEdge(<span class="number">4</span>,<span class="number">6</span>)</span><br><span class="line">        graph.addEdge(<span class="number">5</span>,<span class="number">6</span>)</span><br><span class="line">        graph.addEdge(<span class="number">5</span>,<span class="number">7</span>)</span><br><span class="line">        graph.addEdge(<span class="number">4</span>,<span class="number">8</span>)</span><br><span class="line">        graph.addEdge(<span class="number">7</span>,<span class="number">8</span>)</span><br><span class="line">        graph.addEdge(<span class="number">7</span>,<span class="number">9</span>)</span><br><span class="line">        graph.addEdge(<span class="number">9</span>,<span class="number">12</span>)</span><br><span class="line">        graph.addEdge(<span class="number">12</span>,<span class="number">10</span>)</span><br><span class="line">        graph.addEdge(<span class="number">10</span>,<span class="number">11</span>)</span><br><span class="line">        graph.addEdge(<span class="number">11</span>,<span class="number">8</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Paths"><a href="#Paths" class="headerlink" title="Paths"></a>Paths</h1><ul>
+<li>A path is a sequence of nodes where each pair of adjacent nodes are connected by an edge</li>
+<li>[“UCLA”, “SRI”, “UTAH”, “MIT”, “BBN”, “RAND”] is a path in this graph</li>
+<li>[“SRI”, “UTAH”, “BBN”] is not a path since UTAH and BBN are not connected by an edge</li>
+</ul>
+<h1 id="Breadth-First-Search-BFS"><a href="#Breadth-First-Search-BFS" class="headerlink" title="Breadth-First Search (BFS)"></a>Breadth-First Search (BFS)</h1><h2 id="Connected-Component"><a href="#Connected-Component" class="headerlink" title="Connected Component"></a>Connected Component</h2><ul>
+<li>This graph is connected<ul>
+<li>There exists a path between any 2 nodes in the graph</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>What if a few connections are broken?<ul>
+<li>How can we tell if tweo nodes are connected?</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>We could verify manually for this graph</li>
+<li>But the Internet has gotten a <em>little</em> bigger over time</li>
+<li>Need to code an algorithm to solve this for us</li>
+</ul>
+<h2 id="BFS"><a href="#BFS" class="headerlink" title="BFS"></a>BFS</h2><ul>
+<li>The Algotithm: Breath-First Search (BFS)<ul>
+<li>Choose a starting node</li>
+<li>Continuously explore connected nodes</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<ul>
+<li>Chooses a starting node</li>
+<li>Explore all nodes connected to the striating node</li>
+<li>Repeat until no new nodes are added</li>
+<li>Never visit a node twice</li>
+</ul>
+<br>
+
+<ul>
+<li>Use a queue to track the order of nodes to visit</li>
+<li>Start with starting node in the queue</li>
+<li>When visiting a node, add all unexplored neighbors to the queue</li>
+<li>Visit neighbors of the node at the front of the queue until the queue is empty</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bfs</span></span>[<span class="type">A</span>](graph: <span class="type">Graph</span>[<span class="type">A</span>], startID: <span class="type">Int</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> explored: <span class="type">Set</span>[<span class="type">Int</span>] = <span class="type">Set</span>(startID)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> toExplore: <span class="type">Queue</span>[<span class="type">Int</span>] = <span class="keyword">new</span> <span class="type">Queue</span>()</span><br><span class="line">    toExplore.enqueue(startID)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!toExplore.empty()) &#123;</span><br><span class="line">        <span class="keyword">val</span> nodeToExplore = toExplore.dequeue()</span><br><span class="line">        <span class="keyword">for</span> (node &lt;- graph.adjacencyList(nodeToExplore)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!explored.contains(node)) &#123;</span><br><span class="line">                println(<span class="string">&quot;exploring: &quot;</span> + graph.nodes(node))</span><br><span class="line">                toExplore.enqueue(node)</span><br><span class="line">                explored = explored + node</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Connectivity"><a href="#Connectivity" class="headerlink" title="Connectivity"></a>Connectivity</h1><ul>
+<li>If you start at nodeA and explore nodeB during the algorithm<ul>
+<li>nodeA and nodeB are connected</li>
+<li>For the lecture question and last HW you’ll need to modify / expand the provided BFS code</li>
+</ul>
+</li>
+</ul>
+<h1 id="Lecture-Question"><a href="#Lecture-Question" class="headerlink" title="Lecture Question"></a>Lecture Question</h1><p><strong>Task:</strong><br>Determine if two nodes connected    </p>
+<ul>
+<li>In the week9.Graph class <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/hartloff/CSE116-Examples">link to example repo</a><ul>
+<li>Write a method named areConnected that takes two node indices (Ints) and determines if the two nodes are connected in the graph</li>
+<li>Return true if they are connected, false if they are not</li>
+</ul>
+</li>
+</ul>
+<p><strong>Testing:</strong><br>In a package named “tests” create a class named “TestConnected” as a test suite that tests the functionality listed above</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:tianzheh@buffalo.edu" rel="external nofollow noreferrer">胡天哲</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tianzhe.me/2020/12/27/LO4-5-Graphs/">https://tianzhe.me/2020/12/27/LO4-5-Graphs/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tianzhe.me" target="_blank">Tianzhe's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Scala/">Scala</a></div><div class="post_share"><div class="social-share" data-image="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/27/LO4-6-Pathfinding/"><img class="prev-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSE116的学习笔记-Lec4_6_Pathfinding</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/27/LO4-4-BST/"><img class="next-cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CSE116的学习笔记-Lec4-4:BST</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/09/24/Inheritance/" title="CSE116的学习笔记 Lec2-1:Inheritance"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记 Lec2-1:Inheritance</div></div></a></div><div><a href="/2020/09/28/JSON/" title="CSE116的学习笔记-Lec2-3:JSON"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-28</div><div class="title">CSE116的学习笔记-Lec2-3:JSON</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-2/" title="CSE116的学习笔记-Lec#7:Model of Execution More Example"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#7:Model of Execution More Example</div></div></a></div><div><a href="/2020/09/24/Model-of-Execution-live/" title="CSE116的学习笔记-Lec#8:Model of Execution live"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-24</div><div class="title">CSE116的学习笔记-Lec#8:Model of Execution live</div></div></a></div><div><a href="/2020/09/16/Model-of-Execution/" title="CSE116的学习笔记-Lec#6:Model of Execution"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#6:Model of Execution</div></div></a></div><div><a href="/2020/09/16/Object-Class/" title="CSE116的学习笔记-Lec#5:Object & Class"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Scala_logo.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-16</div><div class="title">CSE116的学习笔记-Lec#5:Object & Class</div></div></a></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 胡天哲</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">生而为人，我很抱歉</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks"></canvas><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script></div></body></html>
